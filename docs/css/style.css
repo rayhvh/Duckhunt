@@ -1,0 +1,109 @@
+body {
+    background-color:black;
+    font-family: Arial, Helvetica, sans-serif;
+    overflow:hidden;
+    margin:0px; padding:0px;
+    font-family: 'Press Start 2P', cursive;
+}
+
+body * {
+    position: absolute;
+    display: block;
+    margin:0px; padding:0px;
+    box-sizing: border-box;
+    background-repeat: no-repeat;
+}
+
+container {
+    background-color: #41BCFF;
+    /*background-image: url(../images/background.jpg);*/
+    background-repeat: no-repeat;
+    width:800px; height:600px;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    overflow:hidden;
+}
+
+score {
+    color:white;
+    font-size : 22px;
+    padding:20px;
+    line-height: 30px;
+}
+stats {
+    color:white;
+    font-size : 22px;
+    padding:20px;
+    line-height: 30px;
+    right:0%;
+}
+
+endmessage {
+    top:50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    color:red;
+    font-size : 50px;
+    line-height: 80px;
+    width:500px;
+    height: 400px;
+}
+
+
+duck {
+    background-image: url(../images/duck.gif);
+    width:64px; height: 64px;
+}
+gras {
+    background-image: url(../images/gras.png);
+    width:800px; height: 100px;
+    top: 84%;
+    z-index: 1;
+}
+sound {
+    background-image: url(../images/volume.png);
+    width:64px; height: 57px;
+    top: 90%;
+    right:0%;
+    z-index: 2;
+}
+tree {
+    background-image: url(../images/tree.png);
+    width:185px;
+    height: 350px;
+    top: 35%;
+    z-index: 0;
+    left : 10%;
+}
+
+
+crosshair {
+    background-image: url(../images/crosshair.png);
+    background-size: 64px 64px;
+    width:64px; height: 64px;
+    z-index: 2;
+}
+
+bullet {
+    background-image: url(../images/bullet.png);
+    width:62px; height: 62px;
+}
+
+cloud {
+    background-image: url(../images/cloud.png);
+    width:150px; height: 57px;
+    animation: cloudanimation 15s linear infinite;
+}
+
+
+
+@keyframes cloudanimation {
+  0% {
+    transform: translate(-150px, 30px);
+  }
+  
+  100% {
+    transform: translate(800px, 30px);
+  }
+}
