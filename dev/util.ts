@@ -12,7 +12,7 @@ class util {
     }
     public static playAudio(file: string) {
         var audio = new Audio();
-        audio.src = "../sound/" + file;
+        audio.src = "http://raymondvandervelden.nl/school/Duckhunt/docs/sound/" + file;
         audio.load();
         audio.play();
     }
