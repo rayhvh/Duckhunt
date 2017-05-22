@@ -167,7 +167,7 @@ var Game = (function () {
         this.lifes = 3;
         this.theyaregone = false;
         this.level = 0;
-        this.mainthemesound = new Audio('../docs/sound/maintheme.mp3');
+        this.mainthemesound = new Audio('../sound/maintheme.mp3');
     }
     Game.getInstance = function () {
         if (!Game.instance) {
@@ -291,7 +291,7 @@ var util = (function () {
     };
     util.playAudio = function (file) {
         var audio = new Audio();
-        audio.src = "../docs/sound/" + file;
+        audio.src = "../sound/" + file;
         audio.load();
         audio.play();
     };

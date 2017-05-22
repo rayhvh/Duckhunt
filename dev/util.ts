@@ -12,7 +12,7 @@ class util {
     }
     public static playAudio(file: string) {
         var audio = new Audio();
-        audio.src = "../docs/sound/" + file;
+        audio.src = "../sound/" + file;
         audio.load();
         audio.play();
     }

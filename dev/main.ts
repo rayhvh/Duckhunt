@@ -12,7 +12,7 @@ class Game {
     public lifes: number = 3;
     private theyaregone: boolean = false;
     public level: number = 0;
-    private mainthemesound = new Audio('../docs/sound/maintheme.mp3');
+    private mainthemesound = new Audio('../sound/maintheme.mp3');
     private constructor() {
 
     }
