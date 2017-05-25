@@ -17,14 +17,14 @@ var gameobject = (function () {
 var Crosshair = (function (_super) {
     __extends(Crosshair, _super);
     function Crosshair(x, y) {
-        var _this = _super.call(this, document.getElementById("container"), "crosshair", x, y) || this;
-        _this.height = 64;
-        _this.width = 64;
-        _this.keymap = { 37: false, 38: false, 39: false, 40: false, 32: false };
-        _this.speed = 6;
+        var _this = this;
+        _super.call(this, document.getElementById("container"), "crosshair", x, y);
+        this.height = 64;
+        this.width = 64;
+        this.keymap = { 37: false, 38: false, 39: false, 40: false, 32: false };
+        this.speed = 6;
         window.addEventListener("keydown", function (e) { return _this.onKeyDown(e); });
         window.addEventListener("keyup", function (e) { return _this.onKeyUp(e); });
-        return _this;
     }
     Crosshair.prototype.onKeyDown = function (event) {
         if (event.keyCode in this.keymap) {
@@ -82,13 +82,12 @@ var Crosshair = (function (_super) {
 var Duck = (function (_super) {
     __extends(Duck, _super);
     function Duck(x, y) {
-        var _this = _super.call(this, document.getElementById("container"), "duck", x, y) || this;
-        _this.height = 64;
-        _this.width = 64;
-        _this.upspeed = 0.5;
-        _this.sidespeed = 1.0;
-        _this.gone = false;
-        return _this;
+        _super.call(this, document.getElementById("container"), "duck", x, y);
+        this.height = 64;
+        this.width = 64;
+        this.upspeed = 0.5;
+        this.sidespeed = 1.0;
+        this.gone = false;
     }
     Duck.prototype.update = function () {
         this.Behavior.performBehavior();
@@ -172,6 +171,7 @@ var Game = (function () {
     Game.getInstance = function () {
         if (!Game.instance) {
             Game.instance = new Game();
+            this.getInstance();
         }
         return Game.instance;
     };
@@ -247,13 +247,14 @@ var Game = (function () {
     };
     Game.prototype.endGame = function () {
         util.playAudio("gameover.wav");
-        document.getElementById("container").removeChild(document.getElementById("crosshair"));
-        document.getElementById("container").removeChild(document.getElementById("score"));
-        document.getElementById("container").removeChild(document.getElementById("stats"));
+        var container = document.getElementById("container");
+        container.removeChild(document.getElementById("crosshair"));
+        container.removeChild(document.getElementById("score"));
+        container.removeChild(document.getElementById("stats"));
         var endmessage = document.createElement("endmessage");
         endmessage.setAttribute("id", "endmessage");
-        var container = document.getElementById("container").appendChild(endmessage);
         endmessage.innerHTML = "GAME OVER <br> Score:" + this.score + "<br> Level:" + this.level;
+        container.appendChild(endmessage);
     };
     Game.prototype.checkShot = function () {
         if (this.bullets > 0) {

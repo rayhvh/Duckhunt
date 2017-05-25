@@ -13,5 +13,4 @@ abstract class gameobject
         this.y = y;
         this.div.style.transform = "translate(" + this.x + "px," + this.y + "px)";
     }
-
 }

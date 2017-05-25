@@ -32,10 +32,9 @@ class Duck extends gameobject {
         this.x = util.randomIntFromInterval(64,738); // place duck horizontal somewhere betwen 64 to 738 in the field
         this.y = util.randomIntFromInterval(550,750); // placement vertical between - 550 and 750
         console.log("Verticaal:" + this.sidespeed + " Horizontaal" + this.upspeed);
-       
-    
-
     }
+
+    
 
     public getLocation() {
         let location = { x: this.x, y: this.y, height: this.height, width: this.width };
