@@ -13,18 +13,16 @@ class Game {
     private theyaregone: boolean = false;
     public level: number = 0;
     private mainthemesound = new Audio('http://raymondvandervelden.nl/school/Duckhunt/docs/sound/maintheme.mp3');
-    private constructor() {
 
-    }
     public static getInstance() { // create singleton
         if (!Game.instance) {
             Game.instance = new Game();
+            this.getInstance();
         }
         return Game.instance;
     }
-    initializeGame() {
 
-       
+    initializeGame() {
         this.mainthemesound.addEventListener('ended', function () {
             this.currentTime = 0;
             this.play();
@@ -107,14 +105,17 @@ class Game {
     private endGame() {
         //no more lives. end game.
         util.playAudio("gameover.wav");//play gameover sound
-        document.getElementById("container").removeChild(document.getElementById("crosshair")); // remove crosshair DOM
-        document.getElementById("container").removeChild(document.getElementById("score"));
-        document.getElementById("container").removeChild(document.getElementById("stats"));
+
+        let container = document.getElementById("container");
+        container.removeChild(document.getElementById("crosshair")); // remove crosshair DOM
+        container.removeChild(document.getElementById("score"));
+        container.removeChild(document.getElementById("stats"));
+
         let endmessage = document.createElement("endmessage");// create message html
         endmessage.setAttribute("id", "endmessage"); // add message id to html
-        let container = document.getElementById("container").appendChild(endmessage); // find container and add endmessage
         endmessage.innerHTML = "GAME OVER <br> Score:" + this.score + "<br> Level:" + this.level; // make and show end message
 
+        container.appendChild(endmessage); // find container and add endmessage
     }
 
 
