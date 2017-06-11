@@ -17,61 +17,76 @@ var gameobject = (function () {
 var Crosshair = (function (_super) {
     __extends(Crosshair, _super);
     function Crosshair(x, y) {
-        var _this = this;
-        _super.call(this, document.getElementById("container"), "crosshair", x, y);
-        this.height = 64;
-        this.width = 64;
-        this.keymap = { 37: false, 38: false, 39: false, 40: false, 32: false };
-        this.speed = 6;
+        var _this = _super.call(this, document.getElementById("container"), "crosshair", x, y) || this;
+        _this.height = 64;
+        _this.width = 64;
+        _this.speed = 6;
+        _this.keyObservers = new Array();
+        _this.releases = new Array();
         window.addEventListener("keydown", function (e) { return _this.onKeyDown(e); });
         window.addEventListener("keyup", function (e) { return _this.onKeyUp(e); });
+        return _this;
     }
-    Crosshair.prototype.onKeyDown = function (event) {
-        if (event.keyCode in this.keymap) {
-            this.keymap[event.keyCode] = true;
+    Crosshair.prototype.subscribe = function (o) {
+        this.keyObservers.push(o);
+    };
+    Crosshair.prototype.unsubscribe = function (o) {
+        var i = this.keyObservers.indexOf(o);
+        if (i != -1) {
+            this.keyObservers.splice(i, 1);
         }
-        this.move();
+    };
+    Crosshair.prototype.onKeyDown = function (event) {
+        switch (event.keyCode) {
+            case Keynumbers.LEFT:
+                new Keys.left(this);
+                break;
+            case Keynumbers.UP:
+                new Keys.up(this);
+                break;
+            case Keynumbers.RIGHT:
+                new Keys.right(this);
+                break;
+            case Keynumbers.DOWN:
+                new Keys.down(this);
+                break;
+            case Keynumbers.SPACE:
+                new Keys.space(this);
+                break;
+        }
+        for (var i = this.keyObservers.length - 1; i > -1; i--) {
+            this.keyObservers[i].notify();
+        }
+        this.y = this.y + Crosshair.yspeed;
+        this.x = this.x + Crosshair.xspeed;
+        this.div.style.transform = "translate(" + this.x + "px," + this.y + "px)";
     };
     Crosshair.prototype.onKeyUp = function (event) {
-        if (this.keymap[32]) {
-            var g = Game.getInstance();
-            g.checkShot();
-            this.keymap[32] = false;
+        switch (event.keyCode) {
+            case Keynumbers.LEFT:
+                this.releases = this.keyObservers.filter(function (l) { return l instanceof Keys.left; });
+                break;
+            case Keynumbers.UP:
+                this.releases = this.keyObservers.filter(function (l) { return l instanceof Keys.up; });
+                break;
+            case Keynumbers.RIGHT:
+                this.releases = this.keyObservers.filter(function (l) { return l instanceof Keys.right; });
+                break;
+            case Keynumbers.DOWN:
+                this.releases = this.keyObservers.filter(function (l) { return l instanceof Keys.down; });
+                break;
+            case Keynumbers.SPACE:
+                var g = Game.getInstance();
+                g.checkShot();
+                this.releases = this.keyObservers.filter(function (l) { return l instanceof Keys.space; });
+                break;
         }
-        if (event.keyCode in this.keymap) {
-            this.keymap[event.keyCode] = false;
+        for (var _i = 0, _a = this.releases; _i < _a.length; _i++) {
+            var keyobserver = _a[_i];
+            keyobserver.unsubscribe();
+            Crosshair.xspeed = 0;
+            Crosshair.yspeed = 0;
         }
-    };
-    Crosshair.prototype.move = function () {
-        if (this.keymap[37] && this.keymap[38]) {
-            this.x -= this.speed;
-            this.y -= this.speed;
-        }
-        else if (this.keymap[38] && this.keymap[39]) {
-            this.x += this.speed;
-            this.y -= this.speed;
-        }
-        else if (this.keymap[39] && this.keymap[40]) {
-            this.x += this.speed;
-            this.y += this.speed;
-        }
-        else if (this.keymap[40] && this.keymap[37]) {
-            this.x -= this.speed;
-            this.y += this.speed;
-        }
-        else if (this.keymap[37]) {
-            this.x -= this.speed * 2;
-        }
-        else if (this.keymap[38]) {
-            this.y -= this.speed * 2;
-        }
-        else if (this.keymap[39]) {
-            this.x += this.speed * 2;
-        }
-        else if (this.keymap[40]) {
-            this.y += this.speed * 2;
-        }
-        this.div.style.transform = "translate(" + this.x + "px," + this.y + "px)";
     };
     Crosshair.prototype.getLocation = function () {
         var location = { x: this.x, y: this.y, height: this.height, width: this.width };
@@ -79,15 +94,18 @@ var Crosshair = (function (_super) {
     };
     return Crosshair;
 }(gameobject));
+Crosshair.xspeed = 0;
+Crosshair.yspeed = 0;
 var Duck = (function (_super) {
     __extends(Duck, _super);
     function Duck(x, y) {
-        _super.call(this, document.getElementById("container"), "duck", x, y);
-        this.height = 64;
-        this.width = 64;
-        this.upspeed = 0.5;
-        this.sidespeed = 1.0;
-        this.gone = false;
+        var _this = _super.call(this, document.getElementById("container"), "duck", x, y) || this;
+        _this.height = 64;
+        _this.width = 64;
+        _this.upspeed = 0.5;
+        _this.sidespeed = 1.0;
+        _this.gone = false;
+        return _this;
     }
     Duck.prototype.update = function () {
         this.Behavior.performBehavior();
@@ -96,11 +114,11 @@ var Duck = (function (_super) {
         this.Behavior = new Flying(this);
         var g = Game.getInstance();
         var multiplier = g.level / 10;
-        this.sidespeed = util.randomIntFromInterval(-0.5, 0.5) + multiplier;
-        this.upspeed = util.randomIntFromInterval(30, 50) / 100 + multiplier;
+        this.sidespeed = Tools.util.randomIntFromInterval(-0.5, 0.5) + multiplier;
+        this.upspeed = Tools.util.randomIntFromInterval(30, 50) / 100 + multiplier;
         this.gone = false;
-        this.x = util.randomIntFromInterval(64, 738);
-        this.y = util.randomIntFromInterval(550, 750);
+        this.x = Tools.util.randomIntFromInterval(64, 738);
+        this.y = Tools.util.randomIntFromInterval(550, 750);
         console.log("Verticaal:" + this.sidespeed + " Horizontaal" + this.upspeed);
     };
     Duck.prototype.getLocation = function () {
@@ -153,10 +171,102 @@ var Flying = (function () {
     Flying.prototype.onShot = function () {
         this.g.score += 1000;
         this.duck.Behavior = new Falling(this.duck);
-        util.playAudio("hit.mp3");
+        Tools.util.playAudio("hit.mp3");
     };
     return Flying;
 }());
+var Keys;
+(function (Keys) {
+    var down = (function () {
+        function down(s) {
+            this.subject = s;
+            this.subject.subscribe(this);
+        }
+        down.prototype.notify = function () {
+            Crosshair.yspeed = 5;
+        };
+        down.prototype.unsubscribe = function () {
+            this.subject.unsubscribe(this);
+        };
+        return down;
+    }());
+    Keys.down = down;
+})(Keys || (Keys = {}));
+var Keynumbers;
+(function (Keynumbers) {
+    Keynumbers[Keynumbers["LEFT"] = 37] = "LEFT";
+    Keynumbers[Keynumbers["UP"] = 38] = "UP";
+    Keynumbers[Keynumbers["RIGHT"] = 39] = "RIGHT";
+    Keynumbers[Keynumbers["DOWN"] = 40] = "DOWN";
+    Keynumbers[Keynumbers["SPACE"] = 32] = "SPACE";
+})(Keynumbers || (Keynumbers = {}));
+var Keys;
+(function (Keys) {
+    var left = (function () {
+        function left(s) {
+            this.subject = s;
+            this.subject.subscribe(this);
+        }
+        left.prototype.notify = function () {
+            Crosshair.xspeed = -5;
+        };
+        left.prototype.unsubscribe = function () {
+            this.subject.unsubscribe(this);
+        };
+        return left;
+    }());
+    Keys.left = left;
+})(Keys || (Keys = {}));
+var Keys;
+(function (Keys) {
+    var right = (function () {
+        function right(s) {
+            this.subject = s;
+            this.subject.subscribe(this);
+        }
+        right.prototype.notify = function () {
+            Crosshair.xspeed = 5;
+        };
+        right.prototype.unsubscribe = function () {
+            this.subject.unsubscribe(this);
+        };
+        return right;
+    }());
+    Keys.right = right;
+})(Keys || (Keys = {}));
+var Keys;
+(function (Keys) {
+    var space = (function () {
+        function space(s) {
+            this.subject = s;
+            this.subject.subscribe(this);
+        }
+        space.prototype.notify = function () {
+        };
+        space.prototype.unsubscribe = function () {
+            this.subject.unsubscribe(this);
+        };
+        return space;
+    }());
+    Keys.space = space;
+})(Keys || (Keys = {}));
+var Keys;
+(function (Keys) {
+    var up = (function () {
+        function up(s) {
+            this.subject = s;
+            this.subject.subscribe(this);
+        }
+        up.prototype.notify = function () {
+            Crosshair.yspeed = -5;
+        };
+        up.prototype.unsubscribe = function () {
+            this.subject.unsubscribe(this);
+        };
+        return up;
+    }());
+    Keys.up = up;
+})(Keys || (Keys = {}));
 var Game = (function () {
     function Game() {
         this.ducks = [];
@@ -171,7 +281,6 @@ var Game = (function () {
     Game.getInstance = function () {
         if (!Game.instance) {
             Game.instance = new Game();
-            this.getInstance();
         }
         return Game.instance;
     };
@@ -238,7 +347,7 @@ var Game = (function () {
     };
     Game.prototype.resetGame = function () {
         this.level += 1;
-        util.playAudio("levelup.mp3");
+        Tools.util.playAudio("levelup.mp3");
         for (var _i = 0, _a = this.ducks; _i < _a.length; _i++) {
             var duck = _a[_i];
             duck.reset();
@@ -246,28 +355,27 @@ var Game = (function () {
         this.bullets += 3;
     };
     Game.prototype.endGame = function () {
-        util.playAudio("gameover.wav");
-        var container = document.getElementById("container");
-        container.removeChild(document.getElementById("crosshair"));
-        container.removeChild(document.getElementById("score"));
-        container.removeChild(document.getElementById("stats"));
+        Tools.util.playAudio("gameover.wav");
+        document.getElementById("container").removeChild(document.getElementById("crosshair"));
+        document.getElementById("container").removeChild(document.getElementById("score"));
+        document.getElementById("container").removeChild(document.getElementById("stats"));
         var endmessage = document.createElement("endmessage");
         endmessage.setAttribute("id", "endmessage");
+        var container = document.getElementById("container").appendChild(endmessage);
         endmessage.innerHTML = "GAME OVER <br> Score:" + this.score + "<br> Level:" + this.level;
-        container.appendChild(endmessage);
     };
     Game.prototype.checkShot = function () {
         if (this.bullets > 0) {
-            util.playAudio("gunshot.wav");
+            Tools.util.playAudio("gunshot.wav");
             for (var _i = 0, _a = this.ducks; _i < _a.length; _i++) {
                 var duck = _a[_i];
-                if (util.collision(duck.getLocation(), this.crosshair.getLocation())) {
+                if (Tools.util.collision(duck.getLocation(), this.crosshair.getLocation())) {
                     duck.Behavior.onShot();
                 }
             }
         }
         else {
-            util.playAudio("empty.mp3");
+            Tools.util.playAudio("empty.mp3");
         }
         if (this.bullets > 0) {
             this.bullets -= 1;
@@ -279,26 +387,30 @@ window.addEventListener("load", function () {
     var g = Game.getInstance();
     g.initializeGame();
 });
-var util = (function () {
-    function util() {
-    }
-    util.collision = function (instance1, instance2) {
-        if (instance1.x < instance2.x + instance2.width &&
-            instance1.x + instance1.width > instance2.x &&
-            instance1.y < instance2.y + instance2.height &&
-            instance1.height + instance1.y > instance2.y) {
-            return true;
+var Tools;
+(function (Tools) {
+    var util = (function () {
+        function util() {
         }
-    };
-    util.playAudio = function (file) {
-        var audio = new Audio();
-        audio.src = "http://raymondvandervelden.nl/school/Duckhunt/docs/sound/" + file;
-        audio.load();
-        audio.play();
-    };
-    util.randomIntFromInterval = function (min, max) {
-        return Math.random() * (max - min + 1) + min;
-    };
-    return util;
-}());
+        util.collision = function (instance1, instance2) {
+            if (instance1.x < instance2.x + instance2.width &&
+                instance1.x + instance1.width > instance2.x &&
+                instance1.y < instance2.y + instance2.height &&
+                instance1.height + instance1.y > instance2.y) {
+                return true;
+            }
+        };
+        util.playAudio = function (file) {
+            var audio = new Audio();
+            audio.src = "http://raymondvandervelden.nl/school/Duckhunt/docs/sound/" + file;
+            audio.load();
+            audio.play();
+        };
+        util.randomIntFromInterval = function (min, max) {
+            return Math.random() * (max - min + 1) + min;
+        };
+        return util;
+    }());
+    Tools.util = util;
+})(Tools || (Tools = {}));
 //# sourceMappingURL=main.js.map

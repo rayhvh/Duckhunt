@@ -36,7 +36,7 @@ class Flying implements DuckBehavior {
     onShot() {
         this.g.score += 1000; // inscrease score in game here so that there is just one excution. 
         this.duck.Behavior = new Falling(this.duck);  // on shot it changes to falling.
-        util.playAudio("hit.mp3");// play hit celebration sound
+        Tools.util.playAudio("hit.mp3");// play hit celebration sound
     }
 
 

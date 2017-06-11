@@ -13,16 +13,18 @@ class Game {
     private theyaregone: boolean = false;
     public level: number = 0;
     private mainthemesound = new Audio('http://raymondvandervelden.nl/school/Duckhunt/docs/sound/maintheme.mp3');
+    private constructor() {
 
+    }
     public static getInstance() { // create singleton
         if (!Game.instance) {
             Game.instance = new Game();
-            this.getInstance();
         }
         return Game.instance;
     }
-
     initializeGame() {
+
+       
         this.mainthemesound.addEventListener('ended', function () {
             this.currentTime = 0;
             this.play();
@@ -93,7 +95,7 @@ class Game {
         // increase level
         this.level += 1;
 
-        util.playAudio("levelup.mp3");
+        Tools.util.playAudio("levelup.mp3");
 
         // restarting game by resetting ducks
         for (let duck of this.ducks) {
@@ -104,32 +106,29 @@ class Game {
     }
     private endGame() {
         //no more lives. end game.
-        util.playAudio("gameover.wav");//play gameover sound
-
-        let container = document.getElementById("container");
-        container.removeChild(document.getElementById("crosshair")); // remove crosshair DOM
-        container.removeChild(document.getElementById("score"));
-        container.removeChild(document.getElementById("stats"));
-
+        Tools.util.playAudio("gameover.wav");//play gameover sound
+        document.getElementById("container").removeChild(document.getElementById("crosshair")); // remove crosshair DOM
+        document.getElementById("container").removeChild(document.getElementById("score"));
+        document.getElementById("container").removeChild(document.getElementById("stats"));
         let endmessage = document.createElement("endmessage");// create message html
         endmessage.setAttribute("id", "endmessage"); // add message id to html
+        let container = document.getElementById("container").appendChild(endmessage); // find container and add endmessage
         endmessage.innerHTML = "GAME OVER <br> Score:" + this.score + "<br> Level:" + this.level; // make and show end message
 
-        container.appendChild(endmessage); // find container and add endmessage
     }
 
 
     checkShot() {
         if (this.bullets > 0) {
-            util.playAudio("gunshot.wav");
+            Tools.util.playAudio("gunshot.wav");
             for (let duck of this.ducks) {
-                if (util.collision(duck.getLocation(), this.crosshair.getLocation())) {
+                if (Tools.util.collision(duck.getLocation(), this.crosshair.getLocation())) {
                     duck.Behavior.onShot();
                 }
             }
         }
         else {
-            util.playAudio("empty.mp3");
+            Tools.util.playAudio("empty.mp3");
         }
         if (this.bullets > 0) { // dont remove bullet when 0
             this.bullets -= 1; // remove bullet because of shot
