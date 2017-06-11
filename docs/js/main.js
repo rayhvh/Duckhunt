@@ -290,7 +290,7 @@ var Game = (function () {
             this.currentTime = 0;
             this.play();
         }, false);
-        this.mainthemesound.volume = 0.2;
+        this.mainthemesound.volume = 0.1;
         this.mainthemesound.play();
         document.getElementsByTagName("sound")[0].addEventListener("click", function () { return _this.toggleMusic(); });
         this.crosshair = new Crosshair(368, 268);
@@ -299,6 +299,20 @@ var Game = (function () {
         }
         this.resetGame();
         requestAnimationFrame(function () { return _this.gameLoop(); });
+        this.engine = Matter.Engine.create();
+        var render = Matter.Render.create({
+            element: document.body,
+            engine: this.engine,
+            options: {
+                height: 100,
+                width: 100
+            }
+        });
+        Matter.Engine.run(this.engine);
+        Matter.Render.run(render);
+        var circ = Matter.Bodies.circle(10, 6, 10);
+        var ground = Matter.Bodies.rectangle(1, 100, 30, 45, { isStatic: true });
+        Matter.World.add(this.engine.world, [circ, ground]);
     };
     Game.prototype.gameLoop = function () {
         var _this = this;

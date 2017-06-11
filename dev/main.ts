@@ -3,6 +3,7 @@
 
 class Game {
 
+    private engine : Matter.Engine;
     private static instance: Game;
     private crosshair: Crosshair;
     private ducks: Array<Duck> = [];
@@ -29,7 +30,7 @@ class Game {
             this.currentTime = 0;
             this.play();
         }, false);
-        this.mainthemesound.volume = 0.2;
+        this.mainthemesound.volume = 0.1;
         this.mainthemesound.play();
         document.getElementsByTagName("sound")[0].addEventListener("click", () => this.toggleMusic());
 
@@ -41,6 +42,33 @@ class Game {
         }
         this.resetGame(); //Reset game to start first time
         requestAnimationFrame(() => this.gameLoop()); // call loop.
+         
+              //
+        // SETUP MATTER WORLD
+        //
+        this.engine = Matter.Engine.create();
+
+        var render = Matter.Render.create({
+            element: document.body,
+            engine: this.engine,
+           options: {
+           height: 100,
+           width: 100
+       }
+        });
+
+        Matter.Engine.run(this.engine);
+        Matter.Render.run(render);
+    
+        //
+        // ADD PHYSICS OBJECTS TO THE WORLD
+        //
+       
+        let circ:Matter.Body = Matter.Bodies.circle(10,6,10);
+        let ground:Matter.Body = Matter.Bodies.rectangle(1, 100, 30, 45, { isStatic: true });
+
+        Matter.World.add(this.engine.world, [ circ, ground]);
+    
     }
 
     private gameLoop() {
