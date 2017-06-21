@@ -43,7 +43,7 @@ class Game {
         this.resetGame(); //Reset game to start first time
         requestAnimationFrame(() => this.gameLoop()); // call loop.
          
-              //
+        //
         // SETUP MATTER WORLD
         //
         this.engine = Matter.Engine.create();

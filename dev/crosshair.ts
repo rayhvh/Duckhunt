@@ -56,7 +56,12 @@ class Crosshair extends gameobject implements Subject {
         for (let i = this.keyObservers.length - 1; i > -1; i--) {
             this.keyObservers[i].notify();
         }
-        this.y = this.y + Crosshair.yspeed;
+
+        this.update();
+       
+    }
+    public update(){
+         this.y = this.y + Crosshair.yspeed;
       
         this.x = this.x + Crosshair.xspeed;
         

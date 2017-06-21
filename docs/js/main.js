@@ -17,15 +17,15 @@ var gameobject = (function () {
 var Crosshair = (function (_super) {
     __extends(Crosshair, _super);
     function Crosshair(x, y) {
-        var _this = _super.call(this, document.getElementById("container"), "crosshair", x, y) || this;
-        _this.height = 64;
-        _this.width = 64;
-        _this.speed = 6;
-        _this.keyObservers = new Array();
-        _this.releases = new Array();
+        var _this = this;
+        _super.call(this, document.getElementById("container"), "crosshair", x, y);
+        this.height = 64;
+        this.width = 64;
+        this.speed = 6;
+        this.keyObservers = new Array();
+        this.releases = new Array();
         window.addEventListener("keydown", function (e) { return _this.onKeyDown(e); });
         window.addEventListener("keyup", function (e) { return _this.onKeyUp(e); });
-        return _this;
     }
     Crosshair.prototype.subscribe = function (o) {
         this.keyObservers.push(o);
@@ -57,6 +57,9 @@ var Crosshair = (function (_super) {
         for (var i = this.keyObservers.length - 1; i > -1; i--) {
             this.keyObservers[i].notify();
         }
+        this.update();
+    };
+    Crosshair.prototype.update = function () {
         this.y = this.y + Crosshair.yspeed;
         this.x = this.x + Crosshair.xspeed;
         this.div.style.transform = "translate(" + this.x + "px," + this.y + "px)";
@@ -92,20 +95,19 @@ var Crosshair = (function (_super) {
         var location = { x: this.x, y: this.y, height: this.height, width: this.width };
         return location;
     };
+    Crosshair.xspeed = 0;
+    Crosshair.yspeed = 0;
     return Crosshair;
 }(gameobject));
-Crosshair.xspeed = 0;
-Crosshair.yspeed = 0;
 var Duck = (function (_super) {
     __extends(Duck, _super);
     function Duck(x, y) {
-        var _this = _super.call(this, document.getElementById("container"), "duck", x, y) || this;
-        _this.height = 64;
-        _this.width = 64;
-        _this.upspeed = 0.5;
-        _this.sidespeed = 1.0;
-        _this.gone = false;
-        return _this;
+        _super.call(this, document.getElementById("container"), "duck", x, y);
+        this.height = 64;
+        this.width = 64;
+        this.upspeed = 0.5;
+        this.sidespeed = 1.0;
+        this.gone = false;
     }
     Duck.prototype.update = function () {
         this.Behavior.performBehavior();
@@ -175,98 +177,6 @@ var Flying = (function () {
     };
     return Flying;
 }());
-var Keys;
-(function (Keys) {
-    var down = (function () {
-        function down(s) {
-            this.subject = s;
-            this.subject.subscribe(this);
-        }
-        down.prototype.notify = function () {
-            Crosshair.yspeed = 5;
-        };
-        down.prototype.unsubscribe = function () {
-            this.subject.unsubscribe(this);
-        };
-        return down;
-    }());
-    Keys.down = down;
-})(Keys || (Keys = {}));
-var Keynumbers;
-(function (Keynumbers) {
-    Keynumbers[Keynumbers["LEFT"] = 37] = "LEFT";
-    Keynumbers[Keynumbers["UP"] = 38] = "UP";
-    Keynumbers[Keynumbers["RIGHT"] = 39] = "RIGHT";
-    Keynumbers[Keynumbers["DOWN"] = 40] = "DOWN";
-    Keynumbers[Keynumbers["SPACE"] = 32] = "SPACE";
-})(Keynumbers || (Keynumbers = {}));
-var Keys;
-(function (Keys) {
-    var left = (function () {
-        function left(s) {
-            this.subject = s;
-            this.subject.subscribe(this);
-        }
-        left.prototype.notify = function () {
-            Crosshair.xspeed = -5;
-        };
-        left.prototype.unsubscribe = function () {
-            this.subject.unsubscribe(this);
-        };
-        return left;
-    }());
-    Keys.left = left;
-})(Keys || (Keys = {}));
-var Keys;
-(function (Keys) {
-    var right = (function () {
-        function right(s) {
-            this.subject = s;
-            this.subject.subscribe(this);
-        }
-        right.prototype.notify = function () {
-            Crosshair.xspeed = 5;
-        };
-        right.prototype.unsubscribe = function () {
-            this.subject.unsubscribe(this);
-        };
-        return right;
-    }());
-    Keys.right = right;
-})(Keys || (Keys = {}));
-var Keys;
-(function (Keys) {
-    var space = (function () {
-        function space(s) {
-            this.subject = s;
-            this.subject.subscribe(this);
-        }
-        space.prototype.notify = function () {
-        };
-        space.prototype.unsubscribe = function () {
-            this.subject.unsubscribe(this);
-        };
-        return space;
-    }());
-    Keys.space = space;
-})(Keys || (Keys = {}));
-var Keys;
-(function (Keys) {
-    var up = (function () {
-        function up(s) {
-            this.subject = s;
-            this.subject.subscribe(this);
-        }
-        up.prototype.notify = function () {
-            Crosshair.yspeed = -5;
-        };
-        up.prototype.unsubscribe = function () {
-            this.subject.unsubscribe(this);
-        };
-        return up;
-    }());
-    Keys.up = up;
-})(Keys || (Keys = {}));
 var Game = (function () {
     function Game() {
         this.ducks = [];
@@ -401,6 +311,120 @@ window.addEventListener("load", function () {
     var g = Game.getInstance();
     g.initializeGame();
 });
+var util = (function () {
+    function util() {
+    }
+    util.collision = function (instance1, instance2) {
+        if (instance1.x < instance2.x + instance2.width &&
+            instance1.x + instance1.width > instance2.x &&
+            instance1.y < instance2.y + instance2.height &&
+            instance1.height + instance1.y > instance2.y) {
+            return true;
+        }
+    };
+    util.playAudio = function (file) {
+        var audio = new Audio();
+        audio.src = "http://raymondvandervelden.nl/school/Duckhunt/docs/sound/" + file;
+        audio.load();
+        audio.play();
+    };
+    util.randomIntFromInterval = function (min, max) {
+        return Math.random() * (max - min + 1) + min;
+    };
+    return util;
+}());
+var Keys;
+(function (Keys) {
+    var down = (function () {
+        function down(s) {
+            this.subject = s;
+            this.subject.subscribe(this);
+        }
+        down.prototype.notify = function () {
+            Crosshair.yspeed = 5;
+        };
+        down.prototype.unsubscribe = function () {
+            this.subject.unsubscribe(this);
+        };
+        return down;
+    }());
+    Keys.down = down;
+})(Keys || (Keys = {}));
+var Keynumbers;
+(function (Keynumbers) {
+    Keynumbers[Keynumbers["LEFT"] = 37] = "LEFT";
+    Keynumbers[Keynumbers["UP"] = 38] = "UP";
+    Keynumbers[Keynumbers["RIGHT"] = 39] = "RIGHT";
+    Keynumbers[Keynumbers["DOWN"] = 40] = "DOWN";
+    Keynumbers[Keynumbers["SPACE"] = 32] = "SPACE";
+})(Keynumbers || (Keynumbers = {}));
+var Keys;
+(function (Keys) {
+    var left = (function () {
+        function left(s) {
+            this.subject = s;
+            this.subject.subscribe(this);
+        }
+        left.prototype.notify = function () {
+            Crosshair.xspeed = -5;
+        };
+        left.prototype.unsubscribe = function () {
+            this.subject.unsubscribe(this);
+        };
+        return left;
+    }());
+    Keys.left = left;
+})(Keys || (Keys = {}));
+var Keys;
+(function (Keys) {
+    var right = (function () {
+        function right(s) {
+            this.subject = s;
+            this.subject.subscribe(this);
+        }
+        right.prototype.notify = function () {
+            Crosshair.xspeed = 5;
+        };
+        right.prototype.unsubscribe = function () {
+            this.subject.unsubscribe(this);
+        };
+        return right;
+    }());
+    Keys.right = right;
+})(Keys || (Keys = {}));
+var Keys;
+(function (Keys) {
+    var space = (function () {
+        function space(s) {
+            this.subject = s;
+            this.subject.subscribe(this);
+        }
+        space.prototype.notify = function () {
+        };
+        space.prototype.unsubscribe = function () {
+            this.subject.unsubscribe(this);
+        };
+        return space;
+    }());
+    Keys.space = space;
+})(Keys || (Keys = {}));
+var Keys;
+(function (Keys) {
+    var up = (function () {
+        function up(s) {
+            this.subject = s;
+            this.subject.subscribe(this);
+        }
+        up.prototype.notify = function () {
+            Crosshair.yspeed = -5;
+        };
+        up.prototype.unsubscribe = function () {
+            this.subject.unsubscribe(this);
+        };
+        return up;
+    }());
+    Keys.up = up;
+})(Keys || (Keys = {}));
 var Tools;
 (function (Tools) {
     var util = (function () {
